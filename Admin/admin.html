@@ -24,7 +24,11 @@
             </thead>
             <tbody id="userTable"></tbody>
         </table>
-
+        <div id="user-pagination">
+            <button onclick="prevPage('user')">Prev</button>
+            <span id="user-page-number">Page 1</span>
+            <button onclick="nextPage('user')">Next</button>
+        </div>
         <h3>Ride Requests</h3>
         <table class="table">
             <thead>
@@ -37,13 +41,33 @@
             </thead>
             <tbody id="rideTable"></tbody>
         </table>
+        <div id="ride-pagination">
+            <button onclick="prevPage('ride')">Prev</button>
+            <span id="ride-page-number">Page 1</span>
+            <button onclick="nextPage('ride')">Next</button>
+        </div>
     </div>
 
     <script>
-        async function fetchUsers() {
-            const res = await fetch("http://localhost:3000/admin/users");
-            const users = await res.json();
+        let userPage = 1;
+        let ridePage = 1;
+        const limit = 5; 
+        async function fetchUsers(page) {
+            const response = await fetch(`http://localhost:3000/admin/users?page=${page}&limit=${limit}`);
+            
+            if (!response.ok) {
+                console.error("Error fetching users");
+                return;
+            }
+
+            const data = await response.json();
+            const users = data.users;
+            
+            document.getElementById("user-page-number").innerText = `Page ${data.currentPage}`;
+
             const userTable = document.getElementById("userTable");
+            userTable.innerHTML = ""; // Clear previous entries to prevent duplication
+
             users.forEach(user => {
                 userTable.innerHTML += `<tr><td>${user.username}</td><td>${user.email}</td></tr>`;
             });
@@ -59,17 +83,52 @@
                 window.location.href = "index.html"; // Redirect to login if not logged in
             }
         });
-        async function fetchRideRequests() {
-            const res = await fetch("http://localhost:3000/admin/ride-requests");
-            const requests = await res.json();
+        async function fetchRideRequests(page) {
+            const limit = 5; // Adjust as needed
+            const response = await fetch(`http://localhost:3000/admin/ride-requests?page=${page}&limit=${limit}`);
+            
+            if (!response.ok) {
+                console.error("Error fetching ride requests");
+                return;
+            }
+
+            const data = await response.json();
+            const requests = data.rideRequests;
+            
+            document.getElementById("ride-page-number").innerText = `Page ${data.currentPage}`;
+
             const rideTable = document.getElementById("rideTable");
+            rideTable.innerHTML = ""; // Clear previous entries to prevent duplication
+
             requests.forEach(req => {
-                rideTable.innerHTML += `<tr><td>${req.name}</td><td>${req.pickup}</td><td>${req.drop}</td><td>${req.date} ${req.time}</td></tr>`;
+                rideTable.innerHTML += `<tr>
+                    <td>${req.name}</td>
+                    <td>${req.pickup}</td>
+                    <td>${req.drop}</td>
+                    <td>${req.date} ${req.time}</td>
+                </tr>`;
             });
         }
-
-        fetchUsers();
-        fetchRideRequests();
+        function prevPage(type) {
+            if (type === "user" && userPage > 1) {
+                userPage--;
+                fetchUsers(userPage);
+            } else if (type === "ride" && ridePage > 1) {
+                ridePage--;
+                fetchRideRequests(ridePage);
+            }
+        }
+        function nextPage(type) {
+            if (type === "user") {
+                userPage++;
+                fetchUsers(userPage);
+            } else if (type === "ride") {
+                ridePage++;
+                fetchRideRequests(ridePage);
+            }
+        }
+        fetchUsers(userPage);
+        fetchRideRequests(ridePage );
         function logout() {
             localStorage.removeItem("user");
             window.location.href = "../index.html"; // Redirect to login page

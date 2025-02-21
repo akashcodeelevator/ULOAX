@@ -92,13 +92,47 @@ app.post("/request-ride", async (req, res) => {
 
 // Admin Panel APIs
 app.get("/admin/users", async (req, res) => {
-    const users = await User.find();
-    res.json(users);
+    try {
+        let { page, limit } = req.query;
+        page = parseInt(page) || 1; // Default to page 1
+        limit = parseInt(limit) || 10; // Default limit is 10 users per page
+
+        const totalUsers = await User.countDocuments();
+        const users = await User.find()
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.json({
+            totalUsers,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentPage: page,
+            users
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error!" });
+    }
 });
 
 app.get("/admin/ride-requests", async (req, res) => {
-    const requests = await RideRequest.find();
-    res.json(requests);
+    try {
+        let { page, limit } = req.query;
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+
+        const totalRequests = await RideRequest.countDocuments();
+        const rideRequests = await RideRequest.find()
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.json({
+            totalRequests,
+            totalPages: Math.ceil(totalRequests / limit),
+            currentPage: page,
+            rideRequests
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error!" });
+    }
 });
 // Start Server
 app.listen(3000, () => {
