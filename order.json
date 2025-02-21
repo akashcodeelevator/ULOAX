@@ -1,0 +1,7 @@
+[
+  { "_id": 101, "user_id": 1, "product": "Laptop", "price": 75000, "status": "Shipped" },
+  { "_id": 102, "user_id": 2, "product": "Smartphone", "price": 25000, "status": "Delivered" },
+  { "_id": 103, "user_id": 3, "product": "Headphones", "price": 3000, "status": "Pending" },
+  { "_id": 104, "user_id": 4, "product": "Smartwatch", "price": 15000, "status": "Processing" },
+  { "_id": 105, "user_id": 5, "product": "Tablet", "price": 35000, "status": "Shipped" }
+]

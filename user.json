@@ -1,0 +1,7 @@
+[
+  { "_id": 1, "username": "john_doe", "email": "john@example.com", "password": "abc123" },
+  { "_id": 2, "username": "alice_smith", "email": "alice@example.com", "password": "abc456" },
+  { "_id": 3, "username": "mike_jones", "email": "mike@example.com", "password": "abc321" },
+  { "_id": 4, "username": "sara_wilson", "email": "sara@example.com", "password": "sara567" },
+  { "_id": 5, "username": "robert_brown", "email": "robert@example.com", "password": "root890" }
+]
