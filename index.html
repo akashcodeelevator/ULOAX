@@ -510,7 +510,18 @@
         });
 
         const data = await response.json();
-        alert(data.message);
+        if (response.ok) {
+            localStorage.setItem("user", JSON.stringify(data.user)); // Save user data
+            debugger
+            console.log(data,'dsasda');
+            if (data.user.role === "admin") {
+                window.location.href = "Admin/admin.html"; // Redirect to Admin Panel
+            } else {
+                window.location.href = "user-dashboard.html"; // Redirect to User Dashboard
+            }
+        } else {
+            alert(data.message); // Show error message
+        }
     }
     document.getElementById("rideRequestForm").addEventListener("submit", async function(event) {
         event.preventDefault(); // Prevent page reload

@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    role: { type: String, default: "user" }, // Admin/User Role
 });
 const rideSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -30,6 +31,17 @@ const rideSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const RideRequest = mongoose.model("RideRequest", rideSchema);
 module.exports = RideRequest;
+// Add Default Admin
+const addAdmin = async () => {
+    const adminExists = await User.findOne({ username: "admin" });
+    if (!adminExists) {
+        const hashedPassword = await bcrypt.hash("admin123", 10);
+        const admin = new User({ username: "admin", email: "admin@gmail.com", password: hashedPassword, role: "admin" });
+        await admin.save();
+        console.log("Admin user created");
+    }
+};
+addAdmin();
 // Register API
 app.post("/register", async (req, res) => {
     try {
@@ -53,7 +65,15 @@ app.post("/login", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Incorrect password!" });
 
-        res.json({ message: "Login successful!" });
+        res.json({
+            message: "Login successful!",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error!" });
     }
@@ -68,6 +88,17 @@ app.post("/request-ride", async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error submitting ride request!" });
     }
+});
+
+// Admin Panel APIs
+app.get("/admin/users", async (req, res) => {
+    const users = await User.find();
+    res.json(users);
+});
+
+app.get("/admin/ride-requests", async (req, res) => {
+    const requests = await RideRequest.find();
+    res.json(requests);
 });
 // Start Server
 app.listen(3000, () => {
